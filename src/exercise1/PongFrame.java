@@ -1,6 +1,8 @@
 package exercise1;
 
 
+import javafx.scene.input.KeyCode;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.Icon;
@@ -9,10 +11,14 @@ import javax.swing.JLabel;
 import javax.swing.KeyStroke;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+
 
 public class PongFrame extends JFrame {
     private JLabel player1;
@@ -27,7 +33,6 @@ public class PongFrame extends JFrame {
 
         //drawing pong board
         getContentPane().setBackground(Color.BLACK);
-
         Icon playerIcon = new ImageIcon(getClass().getResource("sprites/Player.png"));
         Icon midLine = new ImageIcon(getClass().getResource("sprites/MidLine.png"));
         Icon ballIcon = new ImageIcon(getClass().getResource("sprites/Ball.png"));
@@ -36,6 +41,93 @@ public class PongFrame extends JFrame {
         player2 = new JLabel(playerIcon);
         divider = new JLabel(midLine);
         ball = new JLabel(ballIcon);
+
+        add(player1);
+        add(player2);
+        add(divider);
+        add(ball);
+
+        resetGame();
+
+        player1.getInputMap().put(KeyStroke.getKeyStroke("W"),
+                "player1goUp");
+        player1.getActionMap().put("player1goUp",
+                new PlayerMotion(true, "p1"));
+
+        player1.getInputMap().put(KeyStroke.getKeyStroke("S"),
+                "player1goDown");
+        player1.getActionMap().put("player1goDown",
+                new PlayerMotion(false, "p1"));
+
+        player2.getInputMap().put(KeyStroke.getKeyStroke("I"),
+                "player2goUp");
+        player2.getActionMap().put("player2goUp",
+                new PlayerMotion(true, "p2"));
+
+        player2.getInputMap().put(KeyStroke.getKeyStroke("K"),
+                "player2goDown");
+        player2.getActionMap().put("player2goDown",
+                new PlayerMotion(false, "p2"));
+
+
+
+
+    }
+
+
+
+    private class PlayerMotion extends AbstractAction implements ActionListener
+    {
+        private boolean upwards;
+        private String player;
+
+        public PlayerMotion(boolean upwards, String player)
+        {
+            super();
+            this.upwards = upwards;
+            this.player = player;
+        }
+
+        public void actionPerformed(ActionEvent e)
+        {
+            if(player == "p1") {
+                int x1Pos = player1.getX();
+                int y1Pos = player1.getY();
+                if (upwards) {
+
+                    if (y1Pos >= 0) {
+                        y1Pos -= 4;
+                    }
+                } else {
+
+                    if (y1Pos <= 390) {
+                        y1Pos += 4;
+                    }
+                }
+
+                player1.setLocation(x1Pos, y1Pos);
+            }
+            else{
+                int x2Pos = player2.getX();
+                int y2Pos = player2.getY();
+                if(upwards) {
+                    if (y2Pos >= 0) {
+                        y2Pos -= 4;
+                    }
+                }
+                else{
+
+                    if (y2Pos <= 390){
+                        y2Pos+=4;
+                    }
+                    player2.setLocation(x2Pos, y2Pos);
+                }
+                player2.setLocation(x2Pos, y2Pos);
+            }
+        }
+    }
+
+    public void resetGame(){
         player1.setLocation(30,215);
         player1.setSize(10,50);
 
@@ -48,62 +140,5 @@ public class PongFrame extends JFrame {
         divider.setLocation(320,0);
         divider.setSize(1,480);
 
-
-        add(player1);
-        add(player2);
-        add(divider);
-        add(ball);
-
-
-        //adding handlers
-        KeyHandler keyHandler = new KeyHandler();
-        player1.addKeyListener(keyHandler);
-
-        Action upP1 = new AbstractAction(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (player1.getY() > 0 && player1.getY()<480){
-                    player1.setLocation(player1.getX(), player1.getY()+1);
-                }
-            }
-        };
-
-        player1.getInputMap().put(KeyStroke.getKeyStroke("W"), upP1);
-    }
-
-    public class KeyHandler implements KeyListener{
-
-        @Override
-        public void keyTyped(KeyEvent e) {
-
-        }
-
-        @Override
-        public void keyPressed(KeyEvent e) {
-
-            //double currentP2position = player2.getLocation().getY();
-            //switch(e.getKeyCode()){
-            //    case KeyEvent.VK_W:
-            //        if (currentP1position > 0 || currentP1position < 480){
-            //            player1.setLocation((int)player1.getLocation().getX(),currentP1position + 1);
-            //            //player1.setVerticalTextPosition(currentP1position + 1);
-            //        }
-            //        break;
-            //    case KeyEvent.VK_S:
-            //        if (currentP1position > 0 || currentP1position < 480){
-            //            player1.setVerticalTextPosition(currentP1position - 1);
-            //        }
-            //        break;
-            //    default:
-            //        break;
-            //}
-
-        }
-
-        @Override
-        public void keyReleased(KeyEvent e) {
-            JOptionPane.showMessageDialog(null, e.getKeyCode());
-
-        }
     }
 }
