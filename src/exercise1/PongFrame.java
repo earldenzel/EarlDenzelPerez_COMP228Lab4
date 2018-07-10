@@ -69,9 +69,18 @@ public class PongFrame extends JFrame {
         player2.getActionMap().put("player2goDown",
                 new PlayerMotion(false, "p2"));
 
+        gameLoop();
 
 
 
+
+    }
+
+    private void gameLoop(){
+        while(true){
+
+            repaint();
+        }
     }
 
 
