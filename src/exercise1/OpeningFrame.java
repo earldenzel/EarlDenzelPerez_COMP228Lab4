@@ -47,7 +47,6 @@ public class OpeningFrame extends JFrame {
             if (e.getActionCommand() == "Start Game"){
                 PongFrame pongFrame = new PongFrame();
                 pongFrame.setDefaultCloseOperation(pongFrame.EXIT_ON_CLOSE);
-                pongFrame.setSize(640, 480);
                 pongFrame.setVisible(true);
             }
         }

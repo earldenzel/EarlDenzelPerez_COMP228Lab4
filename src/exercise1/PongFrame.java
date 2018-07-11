@@ -1,26 +1,17 @@
 package exercise1;
 
-
-import javafx.scene.input.KeyCode;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.KeyStroke;
 import javax.swing.AbstractAction;
 import javax.swing.Timer;
-import javax.swing.Action;
-import javax.swing.InputMap;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
 
 public class PongFrame extends JFrame {
@@ -30,18 +21,21 @@ public class PongFrame extends JFrame {
     private JLabel ball;
     private int velocityX;
     private int velocityY;
-    private static final int WIDTH = 600;
-    private static final int HEIGHT = 400;
+    private static final int WIDTH = 640;
+    private static final int HEIGHT = 480;
     private static final int PADDLE_HEIGHT = 50;
+    private static final int PADDLE_WIDTH = 10;
+    private int player1Score;
+    private int player2Score;
 
     public PongFrame(){
         super("Pong!");
         setLayout(null);
         setResizable(false);
-        getContentPane().setBackground(Color.BLACK);
+        setSize(new Dimension(WIDTH, HEIGHT));
 
-        JPanel pongPanel = new JPanel();
-        pongPanel.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        Container container = getContentPane();
+        container.setBackground(Color.BLACK);
 
         //drawing pong board
         Icon playerIcon = new ImageIcon(getClass().getResource("sprites/Player.png"));
@@ -59,7 +53,7 @@ public class PongFrame extends JFrame {
         add(divider);
         add(ball);
 
-        resetGame();
+        startGame();
 
         player1.getInputMap().put(KeyStroke.getKeyStroke("W"),
                 "player1goUp");
@@ -81,23 +75,29 @@ public class PongFrame extends JFrame {
         player2.getActionMap().put("player2goDown",
                 new PlayerMotion(false, "p2"));
 
-        gameLoop();
+        gameLoop(container);
     }
 
-    private void gameLoop(){
+    private void startGame(){
+        player1Score = 0;
+        player2Score = 0;
+        resetGame(player1);
+    }
+
+    private void gameLoop(Container container){
+
         Timer timer = new Timer(60, new ActionListener(){
 
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                checkCollision();
+                update();
                 int ballX = ball.getX();
                 int ballY = ball.getY();
 
-                if (ballX <= 0 || ballX >= WIDTH){
+                if (ballX <= 0 || ballX >= container.getWidth()){
                     velocityX = -velocityX;
                 }
-                if (ballY <= 0 || ballY >= HEIGHT){
+                if (ballY <= 0 || ballY >= container.getHeight()){
                     velocityY = -velocityY;
                 }
 
@@ -108,26 +108,40 @@ public class PongFrame extends JFrame {
 
     }
 
-    private void checkCollision(){
-        int hitPoint = ball.getY()- player1.getY();
+    private void update(){
+        int hitPoint1 = ball.getY()- player1.getY();
+        int hitPoint2 = ball.getY()- player2.getY();
 
-        if (player1.getX()-ball.getX() == 0){
-            if (hitPoint <= PADDLE_HEIGHT && hitPoint >=0) {
+        //player1 paddle check
+        if (Math.abs(player1.getX()-ball.getX()) <=4){
+            if (hitPoint1 <= PADDLE_HEIGHT && hitPoint1 >=-2) {
                 velocityX = -velocityX;
+                velocityX += 2;
 
-                velocityY += (6 * hitPoint / PADDLE_HEIGHT - 3);
-                //velocityX++;
+                velocityY += (hitPoint1+2)/13 - 2;
+
             }
-
         }
+        //player2 paddle check
+        if (Math.abs(player2.getX()-ball.getX()) <= 4){
+            if (hitPoint2 <= PADDLE_HEIGHT && hitPoint2 >=-2) {
+                velocityX = -velocityX;
+                velocityX -= 2;
 
-        System.out.printf("Current velocity: %d, %d %n", velocityX, velocityY);
+                velocityY += (hitPoint2+2)/13 - 2;
 
+            }
+        }
+        //player1 score check
+        if (ball.getX() <= 0){
+            player2Score++;
+            resetGame(player1);
+        }
+        if (ball.getX() >= 624){
+            player1Score++;
+            resetGame(player2);
+        }
     }
-
-
-
-
 
     private class PlayerMotion extends AbstractAction implements ActionListener
     {
@@ -149,12 +163,12 @@ public class PongFrame extends JFrame {
                 if (upwards) {
 
                     if (y1Pos >= 0) {
-                        y1Pos -= 4;
+                        y1Pos -= 8;
                     }
                 } else {
 
                     if (y1Pos <= 390) {
-                        y1Pos += 4;
+                        y1Pos += 8;
                     }
                 }
 
@@ -165,13 +179,13 @@ public class PongFrame extends JFrame {
                 int y2Pos = player2.getY();
                 if(upwards) {
                     if (y2Pos >= 0) {
-                        y2Pos -= 4;
+                        y2Pos -= 8;
                     }
                 }
                 else{
 
                     if (y2Pos <= 390){
-                        y2Pos+=4;
+                        y2Pos+=8;
                     }
                     player2.setLocation(x2Pos, y2Pos);
                 }
@@ -180,21 +194,27 @@ public class PongFrame extends JFrame {
         }
     }
 
-    public void resetGame(){
-        player1.setLocation(30,215);
-        player1.setSize(10,PADDLE_HEIGHT);
+    public void resetGame(JLabel player){
+        player1.setLocation(30,195);
+        player1.setSize(PADDLE_WIDTH,PADDLE_HEIGHT);
 
-        player2.setLocation(580, 215);
-        player2.setSize(10,PADDLE_HEIGHT);
+        player2.setLocation(584, 195);
+        player2.setSize(PADDLE_WIDTH,PADDLE_HEIGHT);
 
-        ball.setLocation(40, 235);
-        ball.setSize(10,10);
+        divider.setLocation(312,0);
+        divider.setSize(1,441);
 
-        divider.setLocation(320,0);
-        divider.setSize(1,480);
-
-        velocityX = 10;
-        velocityY = 10;
-
+        if (player == player1) {
+            ball.setLocation(40, 215);
+            ball.setSize(10, 10);
+            velocityX = 8;
+            velocityY = 8;
+        }
+        if (player == player2){
+            ball.setLocation(574, 215);
+            ball.setSize(10, 10);
+            velocityX = -8;
+            velocityY = -8;
+        }
     }
 }
