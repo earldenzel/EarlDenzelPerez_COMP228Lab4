@@ -4,7 +4,7 @@ public class PongTest {
     public static void main(String[] args) {
         OpeningFrame openingFrame = new OpeningFrame();
         openingFrame.setDefaultCloseOperation(openingFrame.EXIT_ON_CLOSE);
-        openingFrame.setSize(640, 480);
+        openingFrame.setSize(150, 200);
         openingFrame.setVisible(true);
     }
 }
