@@ -304,8 +304,7 @@ public class PongFrame extends JFrame implements KeyListener{
         //0, 6, 12, 18, 24, 30, 36, 42, 48
         //this function assumes that set values are unchanged
         int rawVelocityX = Math.abs(velocityX);
-        double multiplier =  ((double)hitpoint/24)-1;
-        System.out.println(multiplier);
+        double multiplier = ((double)hitpoint/24)-1;
         velocityY = (int)(multiplier*rawVelocityX);
     }
 }
