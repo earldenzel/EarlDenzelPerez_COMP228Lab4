@@ -17,9 +17,11 @@ import java.awt.event.KeyListener;
 public class PongFrame extends JFrame implements KeyListener{
     private static final int WIDTH = 640;
     private static final int HEIGHT = 480;
-    private static final int PADDLE_HEIGHT = 50;
+    private static final int PADDLE_HEIGHT = 48;
     private static final int PADDLE_WIDTH = 10;
     private static final int SET_MATCH = 11;
+    private static final int MARGIN_OF_ERROR = 4; //play-testing yielded this value, which affects collisions
+    private static final int PLAYER_MOVESPEED = 6;
     private JLabel player1;
     private JLabel player2;
     private JLabel divider;
@@ -30,7 +32,6 @@ public class PongFrame extends JFrame implements KeyListener{
     private int server;
     private int velocityX;
     private int velocityY;
-    private int velocityMagnitude;
     private int player1Score;
     private int player2Score;
     private boolean shotsFired;
@@ -96,7 +97,6 @@ public class PongFrame extends JFrame implements KeyListener{
         shotsFired = false;
         server = 1;
         resetGame(server);
-        velocityMagnitude = 10;
     }
 
     //primarily updates the location of the ball at all times
@@ -146,22 +146,27 @@ public class PongFrame extends JFrame implements KeyListener{
         int hitPoint2 = ball.getY()- player2.getY();
 
         //player1 paddle check
-        if (Math.abs(player1.getX()-ball.getX()) <=4){
-            if (hitPoint1 <= PADDLE_HEIGHT  && hitPoint1 >= -2) {
-
+        if (Math.abs(player1.getX()-ball.getX()) <=PADDLE_WIDTH){
+            if (hitPoint1 <= PADDLE_HEIGHT  && hitPoint1 >= -MARGIN_OF_ERROR) {
+                //velocity is negative before paddle is hit
+                //this, we will add some velocity after reversing
                 velocityX = -velocityX;
-                velocityX += 2;
-                velocityY += (hitPoint1+2)/13 - 2;
+                velocityX += 1;
+                setYVelocity(hitPoint1);
+                //velocityY += (hitPoint1+2)/13 - 2;
             }
         }
 
         //player2 paddle check
-        if (Math.abs(player2.getX()-ball.getX()) <= 4){
-            if (hitPoint2 <= PADDLE_HEIGHT && hitPoint2 >= -2) {
+        if (Math.abs(player2.getX()-ball.getX()) <= PADDLE_WIDTH){
+            if (hitPoint2 <= PADDLE_HEIGHT && hitPoint2 >= -MARGIN_OF_ERROR) {
+                //velocity is positive before paddle is hit
+                //thus, we will add some velocity before reversing
+                velocityX += 1;
                 velocityX = -velocityX;
-                velocityX -= 2;
+                setYVelocity(hitPoint2);
 
-                velocityY += (hitPoint2+2)/13 - 2;
+                //velocityY += (hitPoint2+2)/13 - 2;
 
             }
         }
@@ -208,11 +213,11 @@ public class PongFrame extends JFrame implements KeyListener{
             shotsFired = true;
             if (server == 1){
                 velocityX = 8;
-                velocityY = 8;
+                //velocityY = 8;
             }
             else if (server == 2){
                 velocityX = -8;
-                velocityY = -8;
+                //velocityY = -8;
             }
             instructions.setText("");
         }
@@ -220,9 +225,9 @@ public class PongFrame extends JFrame implements KeyListener{
         //W is Up for player 1
         if(keys[KeyEvent.VK_W]){
             if (y1Pos >= 0) {
-                y1Pos -= 8;
+                y1Pos -= PLAYER_MOVESPEED;
                 if (!shotsFired && server == 1){
-                    yBall -=8;
+                    yBall -= PLAYER_MOVESPEED;
                 }
             }
         }
@@ -230,27 +235,27 @@ public class PongFrame extends JFrame implements KeyListener{
         if(keys[KeyEvent.VK_S]){
 
             if (y1Pos <= 390) {
-                y1Pos += 8;
+                y1Pos += PLAYER_MOVESPEED;
                 if (!shotsFired && server == 1){
-                    yBall +=8;
+                    yBall +=PLAYER_MOVESPEED;
                 }
             }
         }
         //up arrow key is up for player 2
         if(keys[KeyEvent.VK_UP]){
             if (y2Pos >= 0) {
-                y2Pos -= 8;
+                y2Pos -= PLAYER_MOVESPEED;
                 if (!shotsFired && server == 2){
-                    yBall -=8;
+                    yBall -= PLAYER_MOVESPEED;
                 }
             }
         }
         //down arrow key is down for player 2
         if (keys[KeyEvent.VK_DOWN]){
             if (y2Pos <= 390) {
-                y2Pos += 8;
+                y2Pos += PLAYER_MOVESPEED;
                 if (!shotsFired && server == 2){
-                    yBall +=8;
+                    yBall += PLAYER_MOVESPEED;
                 }
             }
         }
@@ -277,18 +282,30 @@ public class PongFrame extends JFrame implements KeyListener{
         instructions.setText("Player 1 controls: W/S     Press SPACE to start round     Player 2 controls: UP/DOWN");
 
         if (player == 1) {
-            ball.setLocation(40, 215);
+            ball.setLocation(50, 215);
             ball.setSize(10, 10);
             shotsFired = false;
             velocityX = 0;
             velocityY = 0;
         }
         else if (player == 2){
-            ball.setLocation(574, 215);
+            ball.setLocation(564, 215);
             ball.setSize(10, 10);
             shotsFired = false;
             velocityX = 0;
             velocityY = 0;
         }
+    }
+
+    private void setYVelocity(int hitpoint){
+        hitpoint += MARGIN_OF_ERROR;
+        //theoretical value of hitpoint is now 0 to 52
+        //assuming margin of error as 4 and player movespeed as 6, actual values are
+        //0, 6, 12, 18, 24, 30, 36, 42, 48
+        //this function assumes that set values are unchanged
+        int rawVelocityX = Math.abs(velocityX);
+        double multiplier =  ((double)hitpoint/24)-1;
+        System.out.println(multiplier);
+        velocityY = (int)(multiplier*rawVelocityX);
     }
 }
