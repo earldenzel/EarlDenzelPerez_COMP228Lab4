@@ -113,10 +113,10 @@ public class PongFrame extends JFrame implements KeyListener{
                 int ballX = ball.getX();
                 int ballY = ball.getY();
 
-                if (ballX <= 0 || ballX >= container.getWidth()){
+                if (ballX <= 0 || ballX >= container.getWidth()-10){
                     velocityX = -velocityX;
                 }
-                if (ballY <= 0 || ballY >= container.getHeight()){
+                if (ballY <= 0 || ballY >= container.getHeight()-10){
                     velocityY = -velocityY;
                 }
 
@@ -153,7 +153,6 @@ public class PongFrame extends JFrame implements KeyListener{
                 velocityX = -velocityX;
                 velocityX += 1;
                 setYVelocity(hitPoint1);
-                //velocityY += (hitPoint1+2)/13 - 2;
             }
         }
 
@@ -165,9 +164,6 @@ public class PongFrame extends JFrame implements KeyListener{
                 velocityX += 1;
                 velocityX = -velocityX;
                 setYVelocity(hitPoint2);
-
-                //velocityY += (hitPoint2+2)/13 - 2;
-
             }
         }
 
