@@ -1,7 +1,6 @@
 package exercise1;
 
 import javax.swing.JFrame;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.Timer;
@@ -9,8 +8,7 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -19,9 +17,19 @@ public class PongFrame extends JFrame implements KeyListener{
     private static final int HEIGHT = 480;
     private static final int PADDLE_HEIGHT = 48;
     private static final int PADDLE_WIDTH = 10;
+    private static final int DIVIDER_WIDTH = 1;
+    private static final int DIVIDER_HEIGHT = 441;
     private static final int SET_MATCH = 11;
     private static final int MARGIN_OF_ERROR = 4; //play-testing yielded this value, which affects collisions
     private static final int PLAYER_MOVESPEED = 6;
+    private static final int BALL_SIZE = 10;
+    private static final int PLAYER1_DEFAULTX = 30;
+    private static final int PLAYER2_DEFAULTX = 584;
+    private static final int PLAYER_DEFAULTY = 195;
+    private static final int BALL_MARGIN = 10;
+    public static final int PLAYER1_BALLX = PLAYER1_DEFAULTX+PADDLE_WIDTH+BALL_MARGIN;
+    public static final int PLAYER2_BALLX = PLAYER2_DEFAULTX-BALL_SIZE-BALL_MARGIN;
+    public static final int PLAYER_BALLY = 215;
     private JLabel player1;
     private JLabel player2;
     private JLabel divider;
@@ -46,9 +54,19 @@ public class PongFrame extends JFrame implements KeyListener{
         setSize(new Dimension(WIDTH, HEIGHT));
         Container container = getContentPane();
         container.setBackground(Color.BLACK);
-        Icon playerIcon = new ImageIcon(getClass().getResource("sprites/Player.png"));
-        Icon midLine = new ImageIcon(getClass().getResource("sprites/MidLine.png"));
-        Icon ballIcon = new ImageIcon(getClass().getResource("sprites/Ball.png"));
+
+        ImageIcon playerIcon = new ImageIcon(getClass().getResource("sprites/Player.png"));
+        Image playerImage = playerIcon.getImage().getScaledInstance(PADDLE_WIDTH, PADDLE_HEIGHT, Image.SCALE_SMOOTH);
+        playerIcon = new ImageIcon(playerImage);
+
+        ImageIcon midLine = new ImageIcon(getClass().getResource("sprites/MidLine.png"));
+        Image midLineImage = midLine.getImage().getScaledInstance(DIVIDER_WIDTH, DIVIDER_HEIGHT, Image.SCALE_SMOOTH);
+        midLine = new ImageIcon(midLineImage);
+
+        ImageIcon ballIcon = new ImageIcon(getClass().getResource("sprites/Ball.png"));
+        Image ballImage = ballIcon.getImage().getScaledInstance(BALL_SIZE,BALL_SIZE,Image.SCALE_SMOOTH);
+        ballIcon = new ImageIcon(ballImage);
+
         player1 = new JLabel(playerIcon);
         player2 = new JLabel(playerIcon);
         divider = new JLabel(midLine);
@@ -58,9 +76,9 @@ public class PongFrame extends JFrame implements KeyListener{
         score1 = new JLabel();
         score2 = new JLabel();
         instructions = new JLabel();
-        score1.setFont(new Font("Serif", Font.BOLD, 54));
-        score2.setFont(new Font("Serif", Font.BOLD, 54));
-        instructions.setFont(new Font("Serif", Font.PLAIN, 14));
+        score1.setFont(new Font("Sans Serif", Font.BOLD, 54));
+        score2.setFont(new Font("Sans Serif", Font.BOLD, 54));
+        instructions.setFont(new Font("Sans Serif", Font.PLAIN, 14));
         score1.setForeground(Color.WHITE);
         score2.setForeground(Color.WHITE);
         instructions.setForeground(Color.WHITE);
@@ -73,7 +91,8 @@ public class PongFrame extends JFrame implements KeyListener{
         score1.setHorizontalAlignment(JLabel.RIGHT);
         instructions.setHorizontalAlignment(JLabel.CENTER);
         divider.setLocation(312,0);
-        divider.setSize(1,441);
+        divider.setSize(DIVIDER_WIDTH,DIVIDER_HEIGHT);
+        ball.setSize(BALL_SIZE, BALL_SIZE);
 
         //add all components and listeners to frame
         add(player1);
@@ -101,27 +120,21 @@ public class PongFrame extends JFrame implements KeyListener{
 
     //primarily updates the location of the ball at all times
     private void gameLoop(Container container){
-        timer = new Timer(60, new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                collisionCheck();
-                keyCheck();
-                if (endCheck()){
-                    timer.stop();
-                }
-
-                int ballX = ball.getX();
-                int ballY = ball.getY();
-
-                if (ballX <= 0 || ballX >= container.getWidth()-10){
-                    velocityX = -velocityX;
-                }
-                if (ballY <= 0 || ballY >= container.getHeight()-10){
-                    velocityY = -velocityY;
-                }
-
-                ball.setLocation(ballX + velocityX,ballY+ velocityY);
+        timer = new Timer(60, e -> {
+            collisionCheck();
+            keyCheck();
+            if (endCheck()){
+                timer.stop();
             }
+
+            int ballX = ball.getX();
+            int ballY = ball.getY();
+
+            if (ballY <= 0 || ballY >= container.getHeight() - BALL_SIZE){
+                velocityY = -velocityY;
+            }
+
+            ball.setLocation(ballX + velocityX,ballY+ velocityY);
         });
         timer.start();
     }
@@ -266,10 +279,10 @@ public class PongFrame extends JFrame implements KeyListener{
     //resets ball and paddle positions
     //and updates scores
     public void resetGame(int player){
-        player1.setLocation(30,195);
+        player1.setLocation(PLAYER1_DEFAULTX,PLAYER_DEFAULTY);
         player1.setSize(PADDLE_WIDTH,PADDLE_HEIGHT);
 
-        player2.setLocation(584, 195);
+        player2.setLocation(PLAYER2_DEFAULTX, PLAYER_DEFAULTY);
         player2.setSize(PADDLE_WIDTH,PADDLE_HEIGHT);
 
         score1.setText(String.format("%d", player1Score));
@@ -278,15 +291,13 @@ public class PongFrame extends JFrame implements KeyListener{
         instructions.setText("Player 1 controls: W/S     Press SPACE to start round     Player 2 controls: UP/DOWN");
 
         if (player == 1) {
-            ball.setLocation(50, 215);
-            ball.setSize(10, 10);
+            ball.setLocation(PLAYER1_BALLX, PLAYER_BALLY);
             shotsFired = false;
             velocityX = 0;
             velocityY = 0;
         }
         else if (player == 2){
-            ball.setLocation(564, 215);
-            ball.setSize(10, 10);
+            ball.setLocation(PLAYER2_BALLX, PLAYER_BALLY);
             shotsFired = false;
             velocityX = 0;
             velocityY = 0;

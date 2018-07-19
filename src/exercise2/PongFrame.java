@@ -18,7 +18,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,10 +27,19 @@ public class PongFrame extends Application {
     private static final int HEIGHT = 480;
     private static final int PADDLE_HEIGHT = 48;
     private static final int PADDLE_WIDTH = 10;
+    private static final int DIVIDER_WIDTH = 1;
+    private static final int DIVIDER_HEIGHT = HEIGHT;
     private static final int SET_MATCH = 11;
     private static final int MARGIN_OF_ERROR = 4; //play-testing yielded this value, which affects collisions
     private static final int PLAYER_MOVESPEED = 6;
-
+    private static final int BALL_SIZE = 10;
+    private static final int PLAYER1_DEFAULTX = 30;
+    private static final int PLAYER2_DEFAULTX = WIDTH - PLAYER1_DEFAULTX - PADDLE_WIDTH;
+    private static final int PLAYER_DEFAULTY = HEIGHT/2 - PADDLE_HEIGHT/2;
+    private static final int BALL_MARGIN = 10;
+    public static final int PLAYER1_BALLX = PLAYER1_DEFAULTX+PADDLE_WIDTH+BALL_MARGIN;
+    public static final int PLAYER2_BALLX = PLAYER2_DEFAULTX-BALL_SIZE-BALL_MARGIN;
+    public static final int PLAYER_BALLY = HEIGHT/2 - BALL_SIZE/2;
     private Scene openingScene;
     private Scene pongScene;
     private Button btStart;
@@ -52,7 +60,7 @@ public class PongFrame extends Application {
     private boolean shotsFired;
     private Map<KeyCode, Boolean> keys = new HashMap<>();
 
-    private void setOpeningScene(){
+    private void setOpeningScene(Stage stage){
         GridPane openingPane = new GridPane();
         openingPane.setAlignment(Pos.CENTER);
         openingPane.setPadding(new Insets(11.5, 12.5, 13.5, 14.5));
@@ -71,6 +79,12 @@ public class PongFrame extends Application {
         keys.put(KeyCode.S, false);
         keys.put(KeyCode.UP, false);
         keys.put(KeyCode.DOWN, false);
+
+        btStart.setOnAction(e->{
+            stage.hide();
+            stage.setScene(pongScene);
+            stage.show();
+        });
 
     }
 
@@ -185,10 +199,7 @@ public class PongFrame extends Application {
         double ballX = ball.getLayoutX();
         double ballY = ball.getLayoutY();
 
-        if (ballX <= 0 || ballX >= WIDTH-10){
-            velocityX = -velocityX;
-        }
-        if (ballY <= 0 || ballY >= HEIGHT-10){
+        if (ballY <= 0 || ballY >= HEIGHT-BALL_SIZE){
             velocityY = -velocityY;
         }
 
@@ -246,10 +257,10 @@ public class PongFrame extends Application {
         playerImage1.setFitWidth(PADDLE_WIDTH);
         playerImage2.setFitHeight(PADDLE_HEIGHT);
         playerImage2.setFitWidth(PADDLE_WIDTH);
-        midLine.setFitHeight(441);
-        midLine.setFitWidth(1);
-        ballImage.setFitHeight(10);
-        ballImage.setFitWidth(10);
+        midLine.setFitHeight(DIVIDER_HEIGHT);
+        midLine.setFitWidth(DIVIDER_WIDTH);
+        ballImage.setFitHeight(BALL_SIZE);
+        ballImage.setFitWidth(BALL_SIZE);
 
         player1 = new Label(null, playerImage1);
         player2 = new Label(null, playerImage2);
@@ -276,7 +287,7 @@ public class PongFrame extends Application {
         score1.relocate(100, 20);
         score2.relocate(424, 20);
         instructions.relocate(0,5);
-        divider.relocate(312,0);
+        divider.relocate(WIDTH/2,0);
     }
 
     //set start conditions
@@ -292,8 +303,8 @@ public class PongFrame extends Application {
     //resets ball and paddle positions
     //and updates scores
     public void resetGame(int player){
-        player1.relocate(30,195);
-        player2.relocate(584, 195);
+        player1.relocate(PLAYER1_DEFAULTX,PLAYER_DEFAULTY);
+        player2.relocate(PLAYER2_DEFAULTX, PLAYER_DEFAULTY);
 
         score1.setText(String.format("%d", player1Score));
         score2.setText(String.format("%d", player2Score));
@@ -301,13 +312,13 @@ public class PongFrame extends Application {
         instructions.setText("Player 1 controls: W/S     Press SPACE to start round     Player 2 controls: UP/DOWN");
 
         if (player == 1) {
-            ball.relocate(50, 215);
+            ball.relocate(PLAYER1_BALLX, PLAYER_BALLY);
             shotsFired = false;
             velocityX = 0;
             velocityY = 0;
         }
         else if (player == 2){
-            ball.relocate(564, 215);
+            ball.relocate(PLAYER2_BALLX, PLAYER_BALLY);
             shotsFired = false;
             velocityX = 0;
             velocityY = 0;
@@ -320,11 +331,11 @@ public class PongFrame extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        setOpeningScene();
         setPongScene();
+        setOpeningScene(primaryStage);
 
         primaryStage.setTitle("Pong!");
-        primaryStage.setScene(pongScene);
+        primaryStage.setScene(openingScene);
         //primaryStage.setResizable(false);
         //note: primaryStage has setResizable
         primaryStage.show();

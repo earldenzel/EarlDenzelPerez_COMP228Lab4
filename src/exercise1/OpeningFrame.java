@@ -4,7 +4,7 @@ import javax.swing.JFrame;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
-import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -15,12 +15,13 @@ public class OpeningFrame extends JFrame {
 
     public OpeningFrame(){
         super("Welcome to Pong!");
-        setLayout(new FlowLayout());
+        setLayout(new GridLayout(2,2));
 
         //title
         title = new JLabel("PONG!");
         title.setHorizontalTextPosition(SwingConstants.CENTER);
         add(title);
+        add(new JLabel());
 
         //start game button
         startGame = new JButton("Start Game");
