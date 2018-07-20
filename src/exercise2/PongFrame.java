@@ -12,7 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -61,18 +61,20 @@ public class PongFrame extends Application {
     private Map<KeyCode, Boolean> keys = new HashMap<>();
 
     private void setOpeningScene(Stage stage){
-        GridPane openingPane = new GridPane();
-        openingPane.setAlignment(Pos.CENTER);
+        FlowPane openingPane = new FlowPane();
         openingPane.setPadding(new Insets(11.5, 12.5, 13.5, 14.5));
-        openingPane.setHgap(5.5);
-        openingPane.setVgap(5.5);
+        openingPane.setAlignment(Pos.CENTER);
+        openingPane.setHgap(5);
+        openingPane.setVgap(5);
 
-        openingPane.add(new Label("P O N G !"), 0,0);
+        Label title = new Label("PONG!");
+        title.setFont(new Font("Serif", 54));
+
         btStart = new Button("Start Game");
-        openingPane.add(btStart, 0, 1);
         btCancel = new Button("Exit");
-        openingPane.add(btCancel, 1, 1);
-        openingScene = new Scene(openingPane);
+
+        openingPane.getChildren().addAll(title, btStart, btCancel);
+        openingScene = new Scene(openingPane, 200, 120);
 
         keys.put(KeyCode.SPACE, false);
         keys.put(KeyCode.W, false);
@@ -85,6 +87,8 @@ public class PongFrame extends Application {
             stage.setScene(pongScene);
             stage.show();
         });
+
+        btCancel.setOnAction(e-> stage.close());
 
     }
 
@@ -336,7 +340,7 @@ public class PongFrame extends Application {
 
         primaryStage.setTitle("Pong!");
         primaryStage.setScene(openingScene);
-        //primaryStage.setResizable(false);
+        primaryStage.setResizable(false);
         //note: primaryStage has setResizable
         primaryStage.show();
 

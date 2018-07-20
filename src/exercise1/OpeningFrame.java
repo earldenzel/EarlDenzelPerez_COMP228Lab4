@@ -4,7 +4,8 @@ import javax.swing.JFrame;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
-import java.awt.GridLayout;
+import java.awt.Font;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -14,14 +15,15 @@ public class OpeningFrame extends JFrame {
     private final JLabel title;
 
     public OpeningFrame(){
-        super("Welcome to Pong!");
-        setLayout(new GridLayout(2,2));
+        super("Pong!");
+        setLayout(new FlowLayout());
 
         //title
         title = new JLabel("PONG!");
         title.setHorizontalTextPosition(SwingConstants.CENTER);
+        title.setFont(new Font("Sans Serif", Font.BOLD, 54));
+
         add(title);
-        add(new JLabel());
 
         //start game button
         startGame = new JButton("Start Game");
@@ -48,6 +50,7 @@ public class OpeningFrame extends JFrame {
             if (e.getActionCommand() == "Start Game"){
                 PongFrame pongFrame = new PongFrame();
                 pongFrame.setDefaultCloseOperation(pongFrame.EXIT_ON_CLOSE);
+                pongFrame.setLocationRelativeTo(null);
                 pongFrame.setVisible(true);
             }
         }
